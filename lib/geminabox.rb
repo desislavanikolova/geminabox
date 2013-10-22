@@ -20,6 +20,7 @@ class Geminabox < Sinatra::Base
   set :incremental_updates, true
   set :views, File.join(File.dirname(__FILE__), *%w[.. views])
   set :allow_replace, false
+  set :allow_snapshot_replace, true
   set :gem_permissions, 0644
   set :allow_delete, true
   use Hostess
@@ -27,6 +28,14 @@ class Geminabox < Sinatra::Base
   class << self
     def disallow_replace?
       ! allow_replace
+    end
+
+    def allow_snapshot_replace?
+      allow_snapshot_replace
+    end
+
+    def allow_replace?
+      allow_replace
     end
 
     def allow_delete?

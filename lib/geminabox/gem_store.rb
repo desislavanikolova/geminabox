@@ -33,12 +33,24 @@ class GemStore
   end
 
   def check_replacement_status
-    if !overwrite and Geminabox.disallow_replace? and File.exist?(gem.dest_filename)
-      if existing_file_digest != gem.hexdigest
-        raise GemStoreError.new(409, "Updating an existing gem is not permitted.\nYou should either delete the existing version, or change your version number.")
-      else
+    p "Is existing file? #{File.exist?(gem.dest_filename)}"
+    return unless File.exist?(gem.dest_filename)
+    if can_replace?(gem.dest_filename)
+      if existing_file_digest == gem.hexdigest
         raise GemStoreError.new(200, "Ignoring upload, you uploaded the same thing previously.\nPlease use -o to ovewrite.")
       end
+    else
+      raise GemStoreError.new(409, "Updating an existing gem is not permitted.\nYou should either delete the existing version, or change your version number.")
+    end
+  end
+
+  def can_replace?(filename)
+    if filename.match(/SNAPSHOT.gem$/)
+      p "Not a Snopshot"
+      return Geminabox.allow_snapshot_replace?
+    else
+      p "Snapshot"
+      return Geminabox.allow_replace?
     end
   end
 
